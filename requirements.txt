@@ -1,0 +1,31 @@
+# LLM & Orquestração
+langchain==0.3.25
+langchain-groq==0.3.2
+langchain-community==0.3.24
+
+# Embeddings
+langchain-huggingface==0.1.2
+sentence-transformers==3.4.1
+
+# Vector Store
+langchain-chroma==0.2.4
+chromadb==0.6.3
+
+# Ingestão de documentos
+pymupdf==1.25.5
+pandas==2.2.3
+
+# Limpeza de encoding PT-BR
+ftfy==6.3.1
+
+# Avaliação RAG
+ragas==0.2.15
+
+# Interface
+streamlit==1.45.0
+
+# Utilitários
+python-dotenv==1.1.0
+
+# Testes
+pytest==8.3.5
