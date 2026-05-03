@@ -38,7 +38,7 @@ Destaques técnicos:
 
 ```bash
 # 1. Clone o repositório
-git clone <https://github.com/rpa1tera/property.ai>
+git clone https://github.com/rpa1tera/property.ai
 cd property.ai
 
 # 2. Crie e ative o ambiente virtual
