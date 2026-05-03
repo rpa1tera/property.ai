@@ -24,9 +24,6 @@ data/processed/
 .coverage
 htmlcov/
 
-# Jupyter
-notebooks/.ipynb_checkpoints/
-
 # IDEs
 .vscode/
 .idea/

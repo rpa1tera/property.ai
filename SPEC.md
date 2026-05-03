@@ -417,8 +417,6 @@ property.ai/                  # raiz do repositório git
 ├── docs/
 │   ├── arquitetura.drawio
 │   └── relatorio.pdf
-├── notebooks/
-│   └── exploratory_eda.ipynb
 ├── .env.example
 ├── .gitignore
 ├── requirements.txt

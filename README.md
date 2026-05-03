@@ -18,6 +18,7 @@ Projeto desenvolvido para o programa **InsurMinds — I2A2 Academy (Atividade Ob
 O **property.ai** automatiza o atendimento a segurados do ramo property, respondendo perguntas sobre coberturas, franquias, acionamento de sinistros e documentação com base em apólices e manuais reais.
 
 Destaques técnicos:
+
 - **RAG-Fusion** — gera variações semânticas da query para melhorar a recuperação
 - **CRAG Evaluator** — avalia se o contexto recuperado é suficiente antes de responder
 - **Embeddings multilíngues** — `intfloat/multilingual-e5-base`, otimizado para PT-BR
@@ -37,7 +38,7 @@ Destaques técnicos:
 
 ```bash
 # 1. Clone o repositório
-git clone <url-do-repo>
+git clone <https://github.com/rpa1tera/property.ai>
 cd property.ai
 
 # 2. Crie e ative o ambiente virtual
@@ -91,7 +92,6 @@ property.ai/
 │   └── ui/               # Interface Streamlit
 ├── tests/
 ├── docs/                 # Diagrama de arquitetura e relatório PDF
-├── notebooks/            # EDA exploratório
 ├── .env.example
 ├── .gitignore
 └── requirements.txt
