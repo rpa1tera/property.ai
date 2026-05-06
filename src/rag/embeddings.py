@@ -1,20 +1,13 @@
-"""
-Vector store backed by FAISS (langchain_community.vectorstores.FAISS).
-Uses intfloat/multilingual-e5-base for embeddings.
-
-Note: ChromaDB was the original choice but its native HNSW library crashes
-on this Windows setup (STATUS_ACCESS_VIOLATION in the C++ DLL).
-FAISS is identical in behavior — same LangChain interface, auto-persist via
-save_local/load_local.
-"""
 import os
 from pathlib import Path
 
-from langchain_community.vectorstores import FAISS
+import chromadb
 from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 
-_INDEX_DIR = "faiss_index"
+_COLLECTION_NAME = "property_kb"
+_BATCH = 100
+_ALLOWED_META_TYPES = (str, int, float, bool)
 
 
 def get_embeddings() -> HuggingFaceEmbeddings:
@@ -26,25 +19,104 @@ def get_embeddings() -> HuggingFaceEmbeddings:
     )
 
 
+class _HFChromaEF:
+    """Passa nosso embedder HuggingFace ao ChromaDB.
+    Impede a inicialização do ONNXMiniLM_L6_V2 (default) que falha no Windows.
+    """
+    def __init__(self, hf_emb: HuggingFaceEmbeddings) -> None:
+        self._hf = hf_emb
+
+    def __call__(self, input: list[str]) -> list[list[float]]:
+        return self._hf.embed_documents(list(input))
+
+
+def _sanitize_metadata(meta: dict) -> dict:
+    """Remove None e tipos não suportados; garante dict nunca vazio."""
+    clean = {
+        k: v for k, v in meta.items()
+        if v is not None and isinstance(v, _ALLOWED_META_TYPES)
+    }
+    return clean if clean else {"_": "ok"}
+
+
+class PropertyVectorStore:
+    """Wrapper sobre chromadb.Collection com interface LangChain."""
+
+    def __init__(self, collection, hf_emb: HuggingFaceEmbeddings) -> None:
+        self._col = collection
+        self._emb = hf_emb
+
+    def similarity_search(self, query: str, k: int = 5) -> list[Document]:
+        q_vec = self._emb.embed_query(query)
+        results = self._col.query(
+            query_embeddings=[q_vec],
+            n_results=min(k, self._col.count()),
+            include=["documents", "metadatas"],
+        )
+        return [
+            Document(page_content=text, metadata=meta or {})
+            for text, meta in zip(results["documents"][0], results["metadatas"][0])
+        ]
+
+    def as_retriever(self, search_kwargs: dict | None = None):
+        k = (search_kwargs or {}).get("k", 5)
+        vs = self
+
+        class _Retriever:
+            def invoke(self_, query: str) -> list[Document]:
+                return vs.similarity_search(query, k=k)
+
+        return _Retriever()
+
+    def count(self) -> int:
+        return self._col.count()
+
+
+def _get_client(persist_dir: str) -> chromadb.ClientAPI:
+    return chromadb.PersistentClient(path=persist_dir)
+
+
 def build_vectorstore(
     docs: list[Document],
     persist_dir: str | None = None,
-) -> FAISS:
+) -> PropertyVectorStore:
     persist_dir = persist_dir or os.getenv("CHROMA_PERSIST_DIR", "./data/processed/embeddings")
     Path(persist_dir).mkdir(parents=True, exist_ok=True)
 
-    emb = get_embeddings()
-    vectorstore = FAISS.from_documents(docs, emb)
-    vectorstore.save_local(folder_path=persist_dir, index_name=_INDEX_DIR)
-    return vectorstore
+    hf_emb = get_embeddings()
+    chroma_ef = _HFChromaEF(hf_emb)
+    client = _get_client(persist_dir)
 
+    try:
+        client.delete_collection(_COLLECTION_NAME)
+    except Exception:
+        pass
 
-def load_vectorstore(persist_dir: str | None = None) -> FAISS:
-    persist_dir = persist_dir or os.getenv("CHROMA_PERSIST_DIR", "./data/processed/embeddings")
-    emb = get_embeddings()
-    return FAISS.load_local(
-        folder_path=persist_dir,
-        embeddings=emb,
-        index_name=_INDEX_DIR,
-        allow_dangerous_deserialization=True,
+    col = client.create_collection(
+        _COLLECTION_NAME,
+        embedding_function=chroma_ef,
+        metadata={"hnsw:space": "cosine"},
     )
+
+    total = len(docs)
+    for start in range(0, total, _BATCH):
+        batch = docs[start:start + _BATCH]
+        texts = [d.page_content for d in batch]
+        col.add(
+            embeddings=hf_emb.embed_documents(texts),
+            documents=texts,
+            metadatas=[_sanitize_metadata(d.metadata) for d in batch],
+            ids=[f"chunk_{start + j}" for j in range(len(batch))],
+        )
+        print(f"  indexado {min(start + _BATCH, total)}/{total}", flush=True)
+
+    return PropertyVectorStore(col, hf_emb)
+
+
+def load_vectorstore(persist_dir: str | None = None) -> PropertyVectorStore:
+    persist_dir = persist_dir or os.getenv("CHROMA_PERSIST_DIR", "./data/processed/embeddings")
+    hf_emb = get_embeddings()
+    chroma_ef = _HFChromaEF(hf_emb)
+    client = _get_client(persist_dir)
+    col = client.get_collection(_COLLECTION_NAME, embedding_function=chroma_ef)
+    return PropertyVectorStore(col, hf_emb)
