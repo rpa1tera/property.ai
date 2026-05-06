@@ -1,11 +1,11 @@
 """
-Script de ingestão: carrega os PDFs de data/raw/, limpa, chunka e indexa no FAISS.
+Script de ingestão: carrega os PDFs de data/raw/, limpa, chunka e indexa no ChromaDB.
 
 Uso:
     python build_index.py
     python build_index.py --raw-dir data/raw --persist-dir data/processed/embeddings
 
-Execute uma vez antes de iniciar o chatbot. O índice é persistido em persist_dir/faiss_index.
+Execute uma vez antes de iniciar o chatbot. O índice é persistido em persist_dir/.
 """
 
 import argparse
@@ -61,7 +61,7 @@ def main(raw_dir: str = "data/raw", persist_dir: str = "data/processed/embedding
     chunks = chunk_documents(cleaned, chunk_size=512, overlap=64)
     print(f"[build_index] Chunks gerados: {len(chunks)}")
 
-    print(f"\n[build_index] Criando embeddings e indexando com FAISS ({persist_dir})...")
+    print(f"\n[build_index] Criando embeddings e indexando no ChromaDB ({persist_dir})...")
     print("  (primeira execução baixa ~280MB do modelo multilingual-e5-base)")
 
     build_vectorstore(chunks, persist_dir=persist_dir)
@@ -70,7 +70,7 @@ def main(raw_dir: str = "data/raw", persist_dir: str = "data/processed/embedding
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Constrói o índice FAISS a partir dos documentos raw.")
+    parser = argparse.ArgumentParser(description="Constrói o índice ChromaDB a partir dos documentos raw.")
     parser.add_argument("--raw-dir", default="data/raw", help="Diretório com documentos brutos")
     parser.add_argument("--persist-dir", default="data/processed/embeddings", help="Diretório de persistência do ChromaDB")
     args = parser.parse_args()
