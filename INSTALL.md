@@ -61,10 +61,11 @@ python -m pip install --upgrade pip
 
 ### Passo 5 — Instalar dependências
 ```powershell
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Isso instala (entre outros):
+- `torch==2.5.1+cpu` — versão CPU, sem dependência de NVIDIA
 - `chromadb>=1.0.9` + `langchain-chroma>=0.2.4`
 - `langchain-groq` + `langchain-huggingface`
 - `sentence-transformers` (modelo multilingual-e5-base, ~280 MB no primeiro uso)
@@ -72,41 +73,22 @@ Isso instala (entre outros):
 
 ---
 
-## Passo 6 — Testar o ChromaDB (CRÍTICO — faça antes de continuar)
-
-Execute este teste para confirmar que o ChromaDB funciona no seu ambiente:
+## Passo 6 — Testar o ambiente (CRÍTICO — faça antes de continuar)
 
 ```powershell
-python -c "
-import chromadb
-from langchain_huggingface import HuggingFaceEmbeddings
-
-print('1. testando chromadb...')
-c = chromadb.EphemeralClient()
-col = c.create_collection('smoke_test')
-col.add(documents=['seguro patrimonial property'], ids=['t1'],
-        metadatas=[{'tipo': 'teste'}])
-print(f'   chroma ok — count={col.count()}')
-
-print('2. testando embeddings (download ~280MB na 1a vez)...')
-emb = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base',
-                             model_kwargs={'device': 'cpu'})
-v = emb.embed_query('franquia de incendio')
-print(f'   embeddings ok — dim={len(v)}')
-print('TUDO OK — pode continuar.')
-"
+python teste_chroma.py
 ```
 
 **Resultado esperado:**
 ```
-1. testando chromadb...
-   chroma ok — count=1
-2. testando embeddings (download ~280MB na 1a vez)...
+1. carregando embeddings (download ~280MB na 1a vez)...
    embeddings ok — dim=768
+2. testando chromadb com HuggingFace EF...
+   chroma ok — count=1
 TUDO OK — pode continuar.
 ```
 
-**Se o ChromaDB travar/crashar** neste passo, veja a seção [Solução de problemas](#solução-de-problemas) ao final.
+**Se falhar**, veja a seção [Solução de problemas](#solução-de-problemas) ao final.
 
 ---
 

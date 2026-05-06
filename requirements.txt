@@ -1,3 +1,8 @@
+# PyTorch CPU-only — versão 2.5.1+cpu validada no Windows com Anaconda
+# sem --index-url correto, pip instala versão CUDA (~2GB) que falha sem drivers NVIDIA
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1+cpu
+
 # LLM & Orquestração
 langchain>=0.3.25
 langchain-groq>=0.3.2
