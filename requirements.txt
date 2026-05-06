@@ -1,31 +1,33 @@
 # LLM & Orquestração
-langchain==0.3.25
-langchain-groq==0.3.2
-langchain-community==0.3.24
+langchain>=0.3.25
+langchain-groq>=0.3.2
+langchain-community>=0.3.24
 
 # Embeddings
-langchain-huggingface==0.1.2
-sentence-transformers==3.4.1
+langchain-huggingface>=0.1.2
+sentence-transformers>=3.4.1
 
-# Vector Store
-langchain-chroma==0.2.4
-chromadb==0.6.3
+# Vector Store (FAISS — ChromaDB nativo falha no Windows por DLL HNSW)
+faiss-cpu>=1.7.4
+# chromadb>=1.0.9  # mantido para referência futura (requer onnxruntime funcional)
 
 # Ingestão de documentos
-pymupdf==1.25.5
-pandas==2.2.3
+pymupdf>=1.25.5
+pandas>=2.2.3
+beautifulsoup4>=4.12.0
 
 # Limpeza de encoding PT-BR
-ftfy==6.3.1
+ftfy>=6.3.1
 
 # Avaliação RAG
-ragas==0.2.15
+ragas>=0.2.15
+datasets>=2.18.0
 
 # Interface
-streamlit==1.45.0
+streamlit>=1.45.0
 
 # Utilitários
-python-dotenv==1.1.0
+python-dotenv>=1.1.0
 
 # Testes
-pytest==8.3.5
+pytest>=8.3.5

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "O que é franquia no seguro property?",
+    "ground_truth": "Franquia é o valor mínimo de participação obrigatória do segurado no pagamento do sinistro. Quando o dano é inferior à franquia, a seguradora não paga a indenização.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf"
+  },
+  {
+    "question": "O seguro property cobre danos causados por incêndio?",
+    "ground_truth": "Sim, o seguro patrimonial (property) geralmente cobre danos causados por incêndio, raio e explosão. As condições específicas estão descritas nas Condições Gerais da apólice.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf"
+  },
+  {
+    "question": "O que é resseguro?",
+    "ground_truth": "Resseguro é a operação pela qual a seguradora cede parte dos riscos assumidos para outra empresa (resseguradora), transferindo também parte do prêmio recebido, a fim de limitar sua exposição a grandes perdas.",
+    "source_doc": "Introduçao ao Resseguro  Fundación MAPFRE.pdf"
+  },
+  {
+    "question": "Como aciono o seguro após um sinistro?",
+    "ground_truth": "Para acionar o seguro após um sinistro, o segurado deve comunicar imediatamente a ocorrência à seguradora, apresentar boletim de ocorrência quando exigido, e fornecer a documentação necessária conforme as Condições Gerais da apólice.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf"
+  },
+  {
+    "question": "Quais documentos são necessários para acionar a apólice?",
+    "ground_truth": "Os documentos normalmente exigidos incluem: boletim de ocorrência policial (quando aplicável), nota fiscal dos bens danificados, documentos de identificação do segurado e a apólice vigente. A lista completa consta nas Condições Gerais.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf"
+  }
+]
