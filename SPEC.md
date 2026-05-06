@@ -62,7 +62,7 @@ Construir o **property.ai**, um ChatBot conversacional capaz de:
 │  Groq API (gratuito) │              │  1. RAG-Fusion            │
 │  llama-3.3-70b-      │              │     gera 3 variações      │
 │  versatile           │              │     semânticas da query   │
-│  via ChatGroq        │              │  2. ChromaDB (top-k=5     │
+│  via ChatGroq        │              │  2. FAISS (top-k=5        │
 │  (LangChain)         │              │     por variação)         │
 │                      │              │  3. CRAG Evaluator        │
 │                      │              │     avalia suficiência    │
@@ -83,7 +83,7 @@ Construir o **property.ai**, um ChatBot conversacional capaz de:
 | LLM               | **Groq API** — `llama-3.3-70b-versatile`                | Gratuito, ~6k tokens/min, ótimo em PT-BR     |
 | Orquestração      | LangChain (`ChatGroq`)                                  | Integração nativa com Groq                   |
 | Embeddings        | `intfloat/multilingual-e5-base` (HuggingFace)           | Treinado para retrieval, PT-BR nativo        |
-| Vector Store      | **ChromaDB** (modo embedded, persistência automática)   | Sem servidor, filtros por metadado           |
+| Vector Store      | **FAISS** (`faiss-cpu`, `langchain_community.FAISS`)    | `save_local`/`load_local`, sem servidor      |
 | Interface         | Streamlit                                               |                                              |
 | Ingestão de dados | PyMuPDF (PDFs), BSHTMLLoader, `langchain.document_loaders` |                                           |
 | Avaliação RAG     | **RAGAS**                                               | Métricas automáticas sobre golden set        |
@@ -103,12 +103,16 @@ Construir o **property.ai**, um ChatBot conversacional capaz de:
 - `llama-3.3-70b-versatile` tem excelente desempenho em português
 - Alternativa de fallback: `gemma2-9b-it` (mais leve, mesmo free tier)
 
-### Por que ChromaDB em vez de FAISS?
+### Por que FAISS em vez de ChromaDB?
 
-- Persistência automática via `persist_directory` — sem `.save_local()` manual
-- Suporte a metadados e filtros (`where={"tipo": "faq"}`, `where={"tipo": "apolice"}`)
-- Interface de coleções — organiza KB por tipo de documento
-- Pode escalar para modo cliente-servidor HTTP sem mudar o código de negócio
+ChromaDB foi a escolha original, mas a versão 1.5.9 causa `STATUS_ACCESS_VIOLATION` no Windows ao chamar `collection.add()` — o `onnxruntime 1.25.1` (dependência nativa do índice HNSW) não inicializa corretamente no ambiente de desenvolvimento. Tanto `PersistentClient` quanto `EphemeralClient` apresentam a falha.
+
+FAISS (`faiss-cpu 1.13.2`) resolve o problema mantendo as mesmas garantias:
+
+- Sem servidor, roda embedded
+- Persistência via `vectorstore.save_local()` / `FAISS.load_local()` (dois arquivos: `faiss_index.faiss` + `faiss_index.pkl`)
+- Interface idêntica no LangChain (`similarity_search`, `as_retriever`)
+- Estável no Windows — amplamente testado em produção
 
 ---
 
@@ -417,6 +421,7 @@ property.ai/                  # raiz do repositório git
 ├── docs/
 │   ├── arquitetura.drawio
 │   └── relatorio.pdf
+├── build_index.py            # script de ingestão: raw/ → limpeza → chunks → FAISS
 ├── .env.example
 ├── .gitignore
 ├── requirements.txt
