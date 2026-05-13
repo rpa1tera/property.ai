@@ -1,5 +1,7 @@
 # Contexto interno (não versionado)
 CLAUDE.md
+.claude/
+.claude
 
 # Variáveis de ambiente (API keys)
 .env

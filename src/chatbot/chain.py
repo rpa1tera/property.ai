@@ -93,3 +93,60 @@ def answer(
         "escalated": False,
         "docs": docs,
     }
+
+
+def answer_stream(
+    question: str,
+    vectorstore: Any | None = None,
+) -> dict:
+    """
+    Versão de streaming para a UI: retrieval direto (sem LLM para variações nem CRAG)
+    para que o spinner dure <0.5s e o texto comece a fluir imediatamente.
+
+    Returns dict: {stream, answer, sources, intent, escalated}
+      - stream: gerador de tokens ou None para respostas fixas
+      - answer: texto completo (preenchido só quando stream=None)
+    """
+    intent = classify_intent(question)
+
+    if intent == "escalonamento":
+        return {
+            "stream": None,
+            "answer": _ESCALATION_MSG,
+            "sources": [],
+            "intent": intent,
+            "escalated": True,
+        }
+
+    # Busca direta no vectorstore — sem chamada LLM extra para variações
+    docs = vectorstore.similarity_search(question, k=10) if vectorstore else []
+
+    if not docs:
+        return {
+            "stream": None,
+            "answer": _NO_INFO_MSG,
+            "sources": [],
+            "intent": intent,
+            "escalated": True,
+        }
+
+    context = docs_to_context(docs)
+    streaming_llm = ChatGroq(
+        model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        temperature=0.1,
+        streaming=True,
+    )
+
+    def _token_gen():
+        for chunk in (_ANSWER_PROMPT | streaming_llm).stream(
+            {"context": context, "question": question}
+        ):
+            yield chunk.content
+
+    return {
+        "stream": _token_gen(),
+        "answer": None,
+        "sources": _unique_sources(docs),
+        "intent": intent,
+        "escalated": False,
+    }

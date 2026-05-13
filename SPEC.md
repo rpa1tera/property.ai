@@ -419,7 +419,7 @@ property.ai/                  # raiz do repositório git
 ├── docs/
 │   ├── arquitetura.drawio
 │   └── relatorio.pdf
-├── build_index.py            # script de ingestão: raw/ → limpeza → chunks → FAISS
+├── build_index.py            # script de ingestão: raw/ → limpeza → chunks → ChromaDB
 ├── .env.example
 ├── .gitignore
 ├── requirements.txt

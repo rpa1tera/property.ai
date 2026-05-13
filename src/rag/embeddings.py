@@ -23,6 +23,9 @@ class _HFChromaEF:
     """Passa nosso embedder HuggingFace ao ChromaDB.
     Impede a inicialização do ONNXMiniLM_L6_V2 (default) que falha no Windows.
     """
+    def name(self) -> str:
+        return "hf-multilingual-e5-base"
+
     def __init__(self, hf_emb: HuggingFaceEmbeddings) -> None:
         self._hf = hf_emb
 

@@ -4,6 +4,9 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 
 class HFEmbeddingFunction(EmbeddingFunction):
+    def name(self) -> str:
+        return "hf-multilingual-e5-base"
+
     def __init__(self, hf_embeddings):
         self._hf = hf_embeddings
 

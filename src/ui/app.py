@@ -12,7 +12,7 @@ load_dotenv()
 
 import streamlit as st
 
-from src.chatbot.chain import answer
+from src.chatbot.chain import answer_stream
 from src.rag.embeddings import load_vectorstore
 
 st.set_page_config(
@@ -76,19 +76,33 @@ if prompt := st.chat_input("Digite sua pergunta sobre seguros patrimoniais..."):
         st.write(prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Consultando base de conhecimento..."):
+        with st.spinner("Buscando na base de conhecimento..."):
             try:
                 vs = _load_vs()
-                result = answer(prompt, vectorstore=vs)
+                result = answer_stream(prompt, vectorstore=vs)
             except Exception as exc:
                 result = {
+                    "stream": None,
                     "answer": f"Ocorreu um erro ao processar sua pergunta. Por favor, tente novamente.\n\n_{exc}_",
                     "sources": [],
                     "intent": "erro",
                     "escalated": False,
                 }
 
-        st.write(result["answer"])
+        if result["stream"] is not None:
+            try:
+                placeholder = st.empty()
+                full_text = ""
+                for token in result["stream"]:
+                    full_text += token
+                    placeholder.markdown(full_text + "▌")
+                placeholder.markdown(full_text)
+                result["answer"] = full_text
+            except Exception as exc:
+                result["answer"] = f"Erro ao gerar resposta: {exc}"
+                st.markdown(result["answer"])
+        else:
+            st.write(result["answer"])
 
         if result["sources"]:
             with st.expander("Fontes consultadas", expanded=False):
@@ -98,8 +112,8 @@ if prompt := st.chat_input("Digite sua pergunta sobre seguros patrimoniais..."):
         if result["escalated"]:
             st.info("Esta consulta foi encaminhada para um especialista humano.")
 
-        # Lógica de reformulação: se intent=outros por 2x seguidas, escala
-        if result["intent"] == "outros":
+        # Reformulação só se intent=outros E sem resposta útil (escalado)
+        if result["intent"] == "outros" and result["escalated"]:
             st.session_state.reformulation_count += 1
             if st.session_state.reformulation_count < 2:
                 st.warning("Não entendi bem sua pergunta. Poderia reformulá-la com mais detalhes?")
