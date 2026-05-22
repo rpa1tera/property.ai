@@ -55,7 +55,7 @@ def test_answer_insufficient_escalates():
     from src.chatbot.chain import answer
     doc = Document(page_content="Texto irrelevante.", metadata={"tipo": "apolice", "fonte": "test.pdf"})
 
-    with patch("src.chatbot.chain.fused_retrieval", return_value=[doc]), \
+    with patch("src.chatbot.chain.hybrid_search", return_value=[doc]), \
          patch("src.chatbot.chain.evaluate_sufficiency", return_value=False), \
          patch("src.chatbot.chain._get_llm", return_value=MagicMock()):
         result = answer("Qual é a cobertura de granizo?")
@@ -73,7 +73,7 @@ def test_answer_sufficient_returns_response():
     mock_llm = MagicMock()
     mock_llm.__or__ = MagicMock(return_value=mock_llm)
 
-    with patch("src.chatbot.chain.fused_retrieval", return_value=[doc]), \
+    with patch("src.chatbot.chain.hybrid_search", return_value=[doc]), \
          patch("src.chatbot.chain.evaluate_sufficiency", return_value=True), \
          patch("src.chatbot.chain._get_llm", return_value=MagicMock()), \
          patch("src.chatbot.chain.StrOutputParser") as mock_parser_cls:
@@ -88,3 +88,18 @@ def test_answer_sufficient_returns_response():
     assert "answer" in result
     assert result["intent"] == "cobertura"
     assert "condicoes.pdf" in result["sources"]
+
+
+def test_answer_with_fusion_uses_fused_retrieval():
+    """Opt-in: enable_fusion=True usa o caminho legado RAG-Fusion."""
+    from src.chatbot.chain import answer
+    doc = Document(page_content="Texto", metadata={"fonte": "x.pdf"})
+
+    with patch("src.chatbot.chain.fused_retrieval", return_value=[doc]) as mock_fused, \
+         patch("src.chatbot.chain.hybrid_search") as mock_hybrid, \
+         patch("src.chatbot.chain.evaluate_sufficiency", return_value=False), \
+         patch("src.chatbot.chain._get_llm", return_value=MagicMock()):
+        answer("Qual é a cobertura?", enable_fusion=True)
+
+    mock_fused.assert_called_once()
+    mock_hybrid.assert_not_called()

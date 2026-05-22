@@ -21,6 +21,7 @@ from src.chatbot.crag_evaluator import docs_to_context, evaluate_sufficiency
 from src.chatbot.intents import classify_intent
 from src.chatbot.rag_fusion import fused_retrieval
 from src.config import get_settings
+from src.rag.hybrid import hybrid_search
 
 _ANSWER_PROMPT = ChatPromptTemplate.from_template(
     "Você é o property.ai, assistente especializado em seguros patrimoniais (property).\n"
@@ -69,12 +70,20 @@ def _retrieve(
     vectorstore: Any,
     llm: ChatGroq | None,
     enable_fusion: bool,
+    enable_rerank: bool = True,
 ) -> list[Document]:
-    """Caminho de retrieval: fusion (LLM-based) ou direto (sem LLM extra)."""
+    """Caminho de retrieval.
+
+    - `enable_fusion=True`: RAG-Fusion legado (3 variações via LLM). Opt-in p/ A/B.
+    - default: hybrid_search (dense + BM25 + RRF + rerank opcional). Determinístico.
+    """
     if enable_fusion:
         return fused_retrieval(question, vectorstore=vectorstore, top_k=5, llm=llm)
-    # Caminho direto: sem chamada LLM para gerar variações.
-    return vectorstore.similarity_search(question, k=10) if vectorstore else []
+    return hybrid_search(
+        question,
+        vectorstore=vectorstore,
+        enable_rerank=enable_rerank,
+    )
 
 
 def _build_escalation(intent: str, sources: list[str] | None = None,
@@ -93,8 +102,9 @@ def answer(
     question: str,
     *,
     stream: bool = False,
-    enable_fusion: bool = True,
+    enable_fusion: bool = False,
     enable_crag: bool = True,
+    enable_rerank: bool = True,
     chat_history: list | None = None,
     vectorstore: Any | None = None,
     llm: ChatGroq | None = None,
@@ -121,7 +131,7 @@ def answer(
     if intent == "escalonamento":
         return _build_escalation(intent)
 
-    docs = _retrieve(question, vectorstore, llm, enable_fusion)
+    docs = _retrieve(question, vectorstore, llm, enable_fusion, enable_rerank)
 
     if not docs:
         return _build_escalation(intent, msg=_NO_INFO_MSG)
