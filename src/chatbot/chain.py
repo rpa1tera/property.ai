@@ -1,5 +1,16 @@
-import os
-from typing import Any
+"""Orquestrador único do property.ai.
+
+Função pública: `answer(question, *, stream, enable_fusion, enable_crag, ...)`.
+
+A UI consome `answer(..., stream=True)` (caminho rápido, sem extra LLM calls).
+RAGAS consome `answer(..., enable_fusion=True, enable_crag=True)` (caminho completo).
+
+Os nomes `fused_retrieval`, `evaluate_sufficiency`, `_get_llm`, `_ANSWER_PROMPT`
+são mantidos como atributos de módulo porque os testes fazem patch deles.
+"""
+from __future__ import annotations
+
+from typing import Any, Iterator
 
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
@@ -9,6 +20,7 @@ from langchain_groq import ChatGroq
 from src.chatbot.crag_evaluator import docs_to_context, evaluate_sufficiency
 from src.chatbot.intents import classify_intent
 from src.chatbot.rag_fusion import fused_retrieval
+from src.config import get_settings
 
 _ANSWER_PROMPT = ChatPromptTemplate.from_template(
     "Você é o property.ai, assistente especializado em seguros patrimoniais (property).\n"
@@ -32,10 +44,12 @@ _NO_INFO_MSG = (
 )
 
 
-def _get_llm() -> ChatGroq:
+def _get_llm(streaming: bool = False) -> ChatGroq:
+    s = get_settings()
     return ChatGroq(
-        model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
-        temperature=0.1,
+        model=s.groq_model,
+        temperature=s.groq_temperature,
+        streaming=streaming,
     )
 
 
@@ -50,103 +64,106 @@ def _unique_sources(docs: list[Document]) -> list[str]:
     return sources
 
 
+def _retrieve(
+    question: str,
+    vectorstore: Any,
+    llm: ChatGroq | None,
+    enable_fusion: bool,
+) -> list[Document]:
+    """Caminho de retrieval: fusion (LLM-based) ou direto (sem LLM extra)."""
+    if enable_fusion:
+        return fused_retrieval(question, vectorstore=vectorstore, top_k=5, llm=llm)
+    # Caminho direto: sem chamada LLM para gerar variações.
+    return vectorstore.similarity_search(question, k=10) if vectorstore else []
+
+
+def _build_escalation(intent: str, sources: list[str] | None = None,
+                     docs: list[Document] | None = None, msg: str = _ESCALATION_MSG) -> dict:
+    return {
+        "answer": msg,
+        "stream": None,
+        "sources": sources or [],
+        "intent": intent,
+        "escalated": True,
+        "docs": docs or [],
+    }
+
+
 def answer(
     question: str,
+    *,
+    stream: bool = False,
+    enable_fusion: bool = True,
+    enable_crag: bool = True,
     chat_history: list | None = None,
     vectorstore: Any | None = None,
     llm: ChatGroq | None = None,
 ) -> dict:
-    """
-    Returns dict: {answer, sources, intent, escalated, docs}
+    """Caminho único do property.ai.
+
+    Args:
+        question: pergunta do usuário.
+        stream: se True, retorna gerador de tokens em `stream` (UI).
+        enable_fusion: se True, usa RAG-Fusion (3 variações via LLM).
+        enable_crag: se True, valida suficiência via LLM antes de responder.
+        vectorstore: instância PropertyVectorStore. Se None, fusion carregará lazy.
+        llm: ChatGroq override (testes).
+
+    Returns:
+        dict com chaves: answer, stream, sources, intent, escalated, docs.
+        - Se stream=False: `answer` contém o texto completo, `stream` é None.
+        - Se stream=True e há resposta gerada: `stream` é um Iterator[str],
+          `answer` é None (UI consome o iterator e preenche).
+        - Em escalation/sem-info: `answer` é mensagem fixa, `stream` é None.
     """
     intent = classify_intent(question)
 
     if intent == "escalonamento":
-        return {
-            "answer": _ESCALATION_MSG,
-            "sources": [],
-            "intent": intent,
-            "escalated": True,
-            "docs": [],
-        }
+        return _build_escalation(intent)
 
-    llm = llm or _get_llm()
-    docs = fused_retrieval(question, vectorstore=vectorstore, top_k=5, llm=llm)
+    docs = _retrieve(question, vectorstore, llm, enable_fusion)
 
-    if not evaluate_sufficiency(question, docs, llm=llm):
+    if not docs:
+        return _build_escalation(intent, msg=_NO_INFO_MSG)
+
+    if enable_crag and not evaluate_sufficiency(question, docs, llm=llm):
+        return _build_escalation(
+            intent,
+            sources=_unique_sources(docs),
+            docs=docs,
+            msg=_NO_INFO_MSG,
+        )
+
+    context = docs_to_context(docs)
+    sources = _unique_sources(docs)
+
+    if stream:
+        streaming_llm = _get_llm(streaming=True)
         return {
-            "answer": _NO_INFO_MSG,
-            "sources": _unique_sources(docs),
+            "answer": None,
+            "stream": _stream_tokens(streaming_llm, context, question),
+            "sources": sources,
             "intent": intent,
-            "escalated": True,
+            "escalated": False,
             "docs": docs,
         }
 
-    context = docs_to_context(docs)
-    chain = _ANSWER_PROMPT | llm | StrOutputParser()
+    used_llm = llm or _get_llm()
+    chain = _ANSWER_PROMPT | used_llm | StrOutputParser()
     response = chain.invoke({"context": context, "question": question})
 
     return {
         "answer": response,
-        "sources": _unique_sources(docs),
+        "stream": None,
+        "sources": sources,
         "intent": intent,
         "escalated": False,
         "docs": docs,
     }
 
 
-def answer_stream(
-    question: str,
-    vectorstore: Any | None = None,
-) -> dict:
-    """
-    Versão de streaming para a UI: retrieval direto (sem LLM para variações nem CRAG)
-    para que o spinner dure <0.5s e o texto comece a fluir imediatamente.
-
-    Returns dict: {stream, answer, sources, intent, escalated}
-      - stream: gerador de tokens ou None para respostas fixas
-      - answer: texto completo (preenchido só quando stream=None)
-    """
-    intent = classify_intent(question)
-
-    if intent == "escalonamento":
-        return {
-            "stream": None,
-            "answer": _ESCALATION_MSG,
-            "sources": [],
-            "intent": intent,
-            "escalated": True,
-        }
-
-    # Busca direta no vectorstore — sem chamada LLM extra para variações
-    docs = vectorstore.similarity_search(question, k=10) if vectorstore else []
-
-    if not docs:
-        return {
-            "stream": None,
-            "answer": _NO_INFO_MSG,
-            "sources": [],
-            "intent": intent,
-            "escalated": True,
-        }
-
-    context = docs_to_context(docs)
-    streaming_llm = ChatGroq(
-        model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
-        temperature=0.1,
-        streaming=True,
-    )
-
-    def _token_gen():
-        for chunk in (_ANSWER_PROMPT | streaming_llm).stream(
-            {"context": context, "question": question}
-        ):
-            yield chunk.content
-
-    return {
-        "stream": _token_gen(),
-        "answer": None,
-        "sources": _unique_sources(docs),
-        "intent": intent,
-        "escalated": False,
-    }
+def _stream_tokens(streaming_llm: ChatGroq, context: str, question: str) -> Iterator[str]:
+    for chunk in (_ANSWER_PROMPT | streaming_llm).stream(
+        {"context": context, "question": question}
+    ):
+        yield chunk.content

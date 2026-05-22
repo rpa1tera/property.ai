@@ -2,26 +2,302 @@
   {
     "question": "O que é franquia no seguro property?",
     "ground_truth": "Franquia é o valor mínimo de participação obrigatória do segurado no pagamento do sinistro. Quando o dano é inferior à franquia, a seguradora não paga a indenização.",
-    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf"
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "franquia",
+    "should_escalate": false
+  },
+  {
+    "question": "Como é calculada a franquia da apólice?",
+    "ground_truth": "A franquia é definida na apólice e pode ser um valor fixo, percentual sobre o limite máximo de indenização ou percentual sobre o prejuízo apurado, conforme a cobertura contratada.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "franquia",
+    "should_escalate": false
+  },
+  {
+    "question": "Existe franquia única para todas as coberturas?",
+    "ground_truth": "Não necessariamente. Cada cobertura pode ter franquia própria. A apólice descreve a franquia aplicável a cada garantia contratada.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "franquia",
+    "should_escalate": false
+  },
+  {
+    "question": "A franquia incide a cada sinistro?",
+    "ground_truth": "Sim. A franquia é aplicada por sinistro: a cada evento indenizável o segurado arca com o valor da franquia antes do pagamento da indenização.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "franquia",
+    "should_escalate": false
+  },
+  {
+    "question": "Posso reduzir a franquia da minha apólice?",
+    "ground_truth": "Algumas seguradoras oferecem opções de franquia reduzida mediante pagamento de prêmio adicional. Consulte as condições contratuais e o corretor.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "franquia",
+    "should_escalate": false
+  },
+  {
+    "question": "Qual é a diferença entre franquia e participação obrigatória?",
+    "ground_truth": "Os termos são frequentemente usados como sinônimos: ambos designam o valor com o qual o segurado participa obrigatoriamente em cada sinistro.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "franquia",
+    "should_escalate": false
   },
   {
     "question": "O seguro property cobre danos causados por incêndio?",
-    "ground_truth": "Sim, o seguro patrimonial (property) geralmente cobre danos causados por incêndio, raio e explosão. As condições específicas estão descritas nas Condições Gerais da apólice.",
-    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf"
+    "ground_truth": "Sim, o seguro patrimonial geralmente cobre danos causados por incêndio, raio e explosão. As condições específicas estão descritas nas Condições Gerais da apólice.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cobertura",
+    "should_escalate": false
+  },
+  {
+    "question": "Meu seguro cobre queda de raio?",
+    "ground_truth": "Sim. A cobertura básica do seguro patrimonial inclui danos por queda de raio ao imóvel e bens segurados, conforme limites da apólice.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cobertura",
+    "should_escalate": false
+  },
+  {
+    "question": "Explosão de gás está coberta?",
+    "ground_truth": "Sim. Danos por explosão estão entre as coberturas básicas do seguro patrimonial, observadas as exclusões previstas nas Condições Gerais.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cobertura",
+    "should_escalate": false
+  },
+  {
+    "question": "Há cobertura para enchente?",
+    "ground_truth": "A cobertura para enchente é geralmente uma cobertura adicional contratada à parte. Consulte a apólice para verificar se foi contratada.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cobertura",
+    "should_escalate": false
+  },
+  {
+    "question": "Roubo de bens dentro do imóvel é coberto?",
+    "ground_truth": "Roubo e furto qualificado podem ser contratados como coberturas adicionais. A cobertura básica costuma exigir vestígios de arrombamento; consulte as Condições Gerais.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cobertura",
+    "should_escalate": false
+  },
+  {
+    "question": "Vendaval e granizo estão cobertos?",
+    "ground_truth": "Danos por vendaval, ciclone, furacão e granizo podem ser contratados como cobertura adicional na maioria das apólices patrimoniais.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cobertura",
+    "should_escalate": false
+  },
+  {
+    "question": "Danos elétricos em equipamentos estão cobertos?",
+    "ground_truth": "A cobertura para danos elétricos costuma ser opcional e cobre prejuízos a aparelhos e instalações causados por variações anormais de tensão, curto-circuito ou descargas elétricas.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cobertura",
+    "should_escalate": false
+  },
+  {
+    "question": "Danos causados a terceiros são indenizados?",
+    "ground_truth": "Sim, pela cobertura adicional de Responsabilidade Civil Familiar/Empresarial, que cobre danos materiais e corporais involuntariamente causados a terceiros.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cobertura",
+    "should_escalate": false
+  },
+  {
+    "question": "Como aciono o seguro após um sinistro?",
+    "ground_truth": "Para acionar o seguro após um sinistro, o segurado deve comunicar imediatamente a ocorrência à seguradora, apresentar boletim de ocorrência quando exigido e fornecer a documentação necessária conforme as Condições Gerais.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "sinistro",
+    "should_escalate": false
+  },
+  {
+    "question": "Qual o prazo para comunicar um sinistro?",
+    "ground_truth": "O sinistro deve ser comunicado à seguradora o mais breve possível após o evento. A apólice define o prazo máximo, sob pena de perda do direito à indenização.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "sinistro",
+    "should_escalate": false
+  },
+  {
+    "question": "Quais documentos são necessários para acionar a apólice?",
+    "ground_truth": "Os documentos normalmente exigidos incluem boletim de ocorrência policial quando aplicável, nota fiscal dos bens danificados, documentos de identificação do segurado e a apólice vigente.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "sinistro",
+    "should_escalate": false
+  },
+  {
+    "question": "Como funciona a vistoria após o sinistro?",
+    "ground_truth": "A seguradora envia um regulador ou perito para vistoriar o local, apurar causas e dimensionar prejuízos. O segurado deve preservar o cenário até a vistoria, sempre que possível.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "sinistro",
+    "should_escalate": false
+  },
+  {
+    "question": "Em quanto tempo recebo a indenização?",
+    "ground_truth": "Após o recebimento de toda a documentação exigida, a seguradora tem prazo regulamentar de até 30 dias para pagar a indenização, conforme normas da Susep.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "sinistro",
+    "should_escalate": false
+  },
+  {
+    "question": "Em quais casos a indenização pode ser recusada?",
+    "ground_truth": "A indenização pode ser recusada em caso de fraude, dolo, agravamento intencional do risco, falta de pagamento do prêmio ou eventos expressamente excluídos nas Condições Gerais.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "sinistro",
+    "should_escalate": false
+  },
+  {
+    "question": "Preciso registrar boletim de ocorrência?",
+    "ground_truth": "Para sinistros envolvendo roubo, furto, incêndio ou danos a terceiros, o boletim de ocorrência policial costuma ser obrigatório para o pagamento da indenização.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "sinistro",
+    "should_escalate": false
+  },
+  {
+    "question": "Houve um incêndio na minha residência, o que faço?",
+    "ground_truth": "Acione o Corpo de Bombeiros imediatamente, registre boletim de ocorrência, preserve o cenário e comunique a seguradora o mais rápido possível para abertura do processo de sinistro.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "sinistro",
+    "should_escalate": false
+  },
+  {
+    "question": "Como obtenho a segunda via da minha apólice?",
+    "ground_truth": "A segunda via da apólice pode ser solicitada à seguradora ou ao corretor, geralmente por canais digitais (site, aplicativo) ou central de atendimento, mediante identificação do segurado.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "apolice_documentos",
+    "should_escalate": false
+  },
+  {
+    "question": "Qual o prazo de vigência da apólice?",
+    "ground_truth": "O prazo de vigência padrão é de 12 meses, contados a partir da data de início definida na apólice. Pode haver vigências menores ou plurianuais conforme contratação.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "apolice_documentos",
+    "should_escalate": false
+  },
+  {
+    "question": "Quero renovar meu seguro, como faço?",
+    "ground_truth": "A renovação geralmente é oferecida automaticamente antes do término da vigência. O segurado pode aceitar a proposta de renovação ou solicitar ajustes através do corretor ou da seguradora.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "apolice_documentos",
+    "should_escalate": false
+  },
+  {
+    "question": "O que é um endosso na apólice?",
+    "ground_truth": "Endosso é o documento que formaliza alterações na apólice durante a vigência, como mudança de endereço, inclusão de bens, alteração de coberturas ou de beneficiário.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "apolice_documentos",
+    "should_escalate": false
+  },
+  {
+    "question": "Como obtenho o certificado individual de seguro?",
+    "ground_truth": "O certificado individual é emitido pela seguradora ou estipulante e pode ser obtido por canais digitais ou solicitado à central de atendimento, mediante identificação do segurado.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "apolice_documentos",
+    "should_escalate": false
+  },
+  {
+    "question": "Posso alterar dados cadastrais na minha apólice?",
+    "ground_truth": "Sim. Alterações de dados cadastrais e demais informações da apólice são feitas via endosso solicitado à seguradora ou ao corretor.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "apolice_documentos",
+    "should_escalate": false
+  },
+  {
+    "question": "Quero cancelar meu seguro property, como faço?",
+    "ground_truth": "O cancelamento deve ser solicitado formalmente à seguradora ou ao corretor. A apólice pode ser cancelada a pedido do segurado, observados os critérios de devolução de prêmio previstos nas Condições Gerais.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cancelamento",
+    "should_escalate": false
+  },
+  {
+    "question": "Tenho direito a devolução de prêmio se cancelar antes do fim da vigência?",
+    "ground_truth": "Sim, geralmente há devolução proporcional ao período não decorrido, descontados custos administrativos, conforme tabela de prazo curto prevista nas Condições Gerais.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cancelamento",
+    "should_escalate": false
+  },
+  {
+    "question": "A seguradora pode cancelar minha apólice unilateralmente?",
+    "ground_truth": "A seguradora pode rescindir a apólice por inadimplência de prêmio, agravamento de risco não comunicado ou outras hipóteses previstas no contrato e na regulamentação.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cancelamento",
+    "should_escalate": false
+  },
+  {
+    "question": "Não quero mais o seguro, como encerrar?",
+    "ground_truth": "Para encerrar o seguro, solicite o cancelamento à seguradora ou ao corretor por escrito. Será observada a tabela de devolução de prêmio prevista nas Condições Gerais.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cancelamento",
+    "should_escalate": false
+  },
+  {
+    "question": "Quero falar com um atendente humano",
+    "ground_truth": "Vou encaminhar você para um de nossos especialistas em seguros patrimoniais. Em breve você receberá atendimento personalizado.",
+    "source_doc": null,
+    "intent_expected": "escalonamento",
+    "should_escalate": true
+  },
+  {
+    "question": "Me passa para uma pessoa, por favor",
+    "ground_truth": "Vou encaminhar você para um de nossos especialistas em seguros patrimoniais. Em breve você receberá atendimento personalizado.",
+    "source_doc": null,
+    "intent_expected": "escalonamento",
+    "should_escalate": true
+  },
+  {
+    "question": "Não consigo resolver com o chatbot, preciso de ajuda humana",
+    "ground_truth": "Vou encaminhar você para um de nossos especialistas em seguros patrimoniais. Em breve você receberá atendimento personalizado.",
+    "source_doc": null,
+    "intent_expected": "escalonamento",
+    "should_escalate": true
+  },
+  {
+    "question": "Quero atendimento humano agora",
+    "ground_truth": "Vou encaminhar você para um de nossos especialistas em seguros patrimoniais. Em breve você receberá atendimento personalizado.",
+    "source_doc": null,
+    "intent_expected": "escalonamento",
+    "should_escalate": true
   },
   {
     "question": "O que é resseguro?",
     "ground_truth": "Resseguro é a operação pela qual a seguradora cede parte dos riscos assumidos para outra empresa (resseguradora), transferindo também parte do prêmio recebido, a fim de limitar sua exposição a grandes perdas.",
-    "source_doc": "Introduçao ao Resseguro  Fundación MAPFRE.pdf"
+    "source_doc": "Introduçao ao Resseguro  Fundación MAPFRE.pdf",
+    "intent_expected": "outros",
+    "should_escalate": false
   },
   {
-    "question": "Como aciono o seguro após um sinistro?",
-    "ground_truth": "Para acionar o seguro após um sinistro, o segurado deve comunicar imediatamente a ocorrência à seguradora, apresentar boletim de ocorrência quando exigido, e fornecer a documentação necessária conforme as Condições Gerais da apólice.",
-    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf"
+    "question": "Para que serve o resseguro?",
+    "ground_truth": "O resseguro permite à seguradora pulverizar riscos, ampliar capacidade de subscrição e proteger seu patrimônio contra grandes sinistros, garantindo solvência e estabilidade.",
+    "source_doc": "Introduçao ao Resseguro  Fundación MAPFRE.pdf",
+    "intent_expected": "outros",
+    "should_escalate": false
   },
   {
-    "question": "Quais documentos são necessários para acionar a apólice?",
-    "ground_truth": "Os documentos normalmente exigidos incluem: boletim de ocorrência policial (quando aplicável), nota fiscal dos bens danificados, documentos de identificação do segurado e a apólice vigente. A lista completa consta nas Condições Gerais.",
-    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf"
+    "question": "Qual a diferença entre seguro e resseguro?",
+    "ground_truth": "O seguro é a relação entre segurado e seguradora; o resseguro é a relação entre seguradora e resseguradora, na qual parte do risco assumido pela seguradora é transferido à resseguradora.",
+    "source_doc": "Introduçao ao Resseguro  Fundación MAPFRE.pdf",
+    "intent_expected": "outros",
+    "should_escalate": false
+  },
+  {
+    "question": "Bom dia",
+    "ground_truth": "Olá! Sou o property.ai, assistente especializado em seguros patrimoniais. Como posso ajudar?",
+    "source_doc": null,
+    "intent_expected": "outros",
+    "should_escalate": false
+  },
+  {
+    "question": "Qual a previsão do tempo para amanhã?",
+    "ground_truth": "Não encontrei informações suficientes na minha base de conhecimento para responder com precisão a essa pergunta. Vou encaminhar para um especialista que poderá te ajudar melhor.",
+    "source_doc": null,
+    "intent_expected": "outros",
+    "should_escalate": true
+  },
+  {
+    "question": "Vocês cobrem danos causados por guerra?",
+    "ground_truth": "Não. Danos decorrentes de guerra, atos de hostilidade, guerra civil, revolução e similares são exclusões previstas nas Condições Gerais e não estão cobertos pela apólice patrimonial.",
+    "source_doc": "CG_RN_96_V3.2 - MAPFRE SEGUROS.pdf",
+    "intent_expected": "cobertura",
+    "should_escalate": false
+  },
+  {
+    "question": "Como me tornar piloto de Fórmula 1?",
+    "ground_truth": "Não encontrei informações suficientes na minha base de conhecimento para responder com precisão a essa pergunta. Vou encaminhar para um especialista que poderá te ajudar melhor.",
+    "source_doc": null,
+    "intent_expected": "outros",
+    "should_escalate": true
   }
 ]

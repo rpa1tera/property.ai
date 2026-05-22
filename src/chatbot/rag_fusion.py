@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 from langchain_core.documents import Document
@@ -6,6 +5,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 
+from src.config import get_settings
 from src.rag.embeddings import load_vectorstore
 
 _FUSION_PROMPT = ChatPromptTemplate.from_template(
@@ -17,7 +17,7 @@ _FUSION_PROMPT = ChatPromptTemplate.from_template(
 
 def _get_llm() -> ChatGroq:
     return ChatGroq(
-        model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        model=get_settings().groq_model,
         temperature=0,
     )
 

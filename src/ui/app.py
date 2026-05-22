@@ -12,7 +12,7 @@ load_dotenv()
 
 import streamlit as st
 
-from src.chatbot.chain import answer_stream
+from src.chatbot.chain import answer
 from src.rag.embeddings import load_vectorstore
 
 st.set_page_config(
@@ -79,7 +79,15 @@ if prompt := st.chat_input("Digite sua pergunta sobre seguros patrimoniais..."):
         with st.spinner("Buscando na base de conhecimento..."):
             try:
                 vs = _load_vs()
-                result = answer_stream(prompt, vectorstore=vs)
+                # UI usa caminho rápido: sem RAG-Fusion (LLM extra), sem CRAG (LLM extra),
+                # com streaming. RAGAS continua usando defaults (fusion+crag) para baseline.
+                result = answer(
+                    prompt,
+                    vectorstore=vs,
+                    stream=True,
+                    enable_fusion=False,
+                    enable_crag=False,
+                )
             except Exception as exc:
                 result = {
                     "stream": None,

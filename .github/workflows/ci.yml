@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    name: pytest (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        env:
+          # PyTorch CPU index é declarado dentro de requirements.txt; aqui só garantimos pip recente.
+          PIP_DISABLE_PIP_VERSION_CHECK: "1"
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pytest
+        env:
+          # Variáveis dummy para satisfazer load_dotenv em módulos importados pelos testes.
+          # Os testes atuais mockam ChatGroq, portanto nenhuma chamada de rede é feita.
+          GROQ_API_KEY: "dummy-ci-key"
+          GROQ_MODEL: "llama-3.3-70b-versatile"
+          EMBEDDING_MODEL: "intfloat/multilingual-e5-base"
+          CHROMA_PERSIST_DIR: "./data/processed/embeddings"
+          RETRIEVER_TOP_K: "5"
+        run: |
+          pytest tests/ -v --tb=short
+
+      - name: Intent classifier eval (no LLM)
+        # Gratuito (regex only): valida classify_intent contra golden_set.json.
+        # Falha se acurácia < 95%.
+        run: |
+          python -m src.evaluation.intent_eval --min-accuracy 0.95

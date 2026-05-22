@@ -1,5 +1,4 @@
 import json
-import os
 
 from datasets import Dataset
 from langchain_groq import ChatGroq
@@ -9,12 +8,13 @@ from ragas.llms import LangchainLLMWrapper
 from ragas.metrics import answer_relevancy, context_precision, context_recall, faithfulness
 
 from src.chatbot.chain import answer
+from src.config import get_settings
 from src.rag.embeddings import get_embeddings, load_vectorstore
 
 
 def _build_ragas_llm() -> LangchainLLMWrapper:
     llm = ChatGroq(
-        model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        model=get_settings().groq_model,
         temperature=0,
     )
     return LangchainLLMWrapper(llm)
@@ -30,6 +30,14 @@ def run_evaluation(golden_set_path: str | None = None) -> dict:
     with open(golden_path, encoding="utf-8") as f:
         golden = json.load(f)
 
+    # RAGAS só faz sentido em perguntas que devem ser respondidas pelo RAG.
+    # Itens com should_escalate=True OU source_doc=None testam outros aspectos
+    # (escalonamento, saudações) e ficam fora desta métrica.
+    golden = [
+        item for item in golden
+        if not item.get("should_escalate", False) and item.get("source_doc")
+    ]
+
     vectorstore = load_vectorstore()
     ragas_llm = _build_ragas_llm()
     ragas_emb = _build_ragas_embeddings()
@@ -40,6 +48,8 @@ def run_evaluation(golden_set_path: str | None = None) -> dict:
         q = item["question"]
         gt = item["ground_truth"]
 
+        # Defaults da função answer() habilitam fusion+crag (caminho completo
+        # para baseline de qualidade). UI usa enable_fusion=False, enable_crag=False.
         result = answer(q, vectorstore=vectorstore)
 
         questions.append(q)
